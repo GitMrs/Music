@@ -5,6 +5,7 @@ import VueAwesomeSwiper from 'vue-awesome-swiper'
 import App from './App.vue'
 import 'swiper/dist/css/swiper.css'
 import lazyload from 'vue-lazyload';
+import store from './store';
 import fastclick from 'fastclick';
 Vue.use(VueAwesomeSwiper)
 fastclick.attach(document.body)
@@ -18,4 +19,5 @@ Vue.config.productionTip = false
 new Vue({
   render: h => h(App),
   router,
+  store
 }).$mount('#app')

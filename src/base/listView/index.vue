@@ -4,7 +4,7 @@
       <li v-for="(groud,index) in data" :key="index" ref='listGroup'>
         <h3 class="title-mark">{{groud.title}}</h3>
         <ol>
-          <li v-for="(item,_index) in groud.items" :key="_index">
+          <li @click='selectItem(item)' v-for="(item,_index) in groud.items" :key="_index">
             <img :src="item.avatar" class="avatar" :alt="index" >
             <b>{{item.name}}</b>
           </li>
@@ -19,7 +19,7 @@
     <div class="list-fixed" v-show="fixedTitle" ref='fixed'>
       <h2 class="fixed-title">{{fixedTitle}}</h2>
     </div>
-    <Loading v-shoe='!data.length' />
+    <Loading v-show='!data.length' />
   </Scroll>    
 </template>
 <script>
@@ -61,17 +61,16 @@ export default {
       let firstTouch = e.touches[0];
       this.touch.y2 = firstTouch.pageY;
       let delta = ((this.touch.y2 - this.touch.y1) / ANCHOR_HEIGHT) | 0;
-      console.log(delta);
       let anchorIndex = parseInt(this.touch.anchorIndex) + delta;
       this.scrollTo(anchorIndex);
     },
     scrollTo(_index) {
-      if(!index && index !== 0){
+      if(!_index && _index !== 0){
         return
-      }else if(index < 0){
-        index =0
-      }else if(index > this.listHeight.length -2){
-        index = this.listHeight.length - 2
+      }else if(_index < 0){
+        _index =0
+      }else if(_index > this.listHeight.length -2){
+        _index = this.listHeight.length - 2
       }
       this.scrollY = -this.listHeight[_index]
       this.$refs.listView.scrollToElement(this.$refs.listGroup[_index], 0);
@@ -89,6 +88,9 @@ export default {
         height += item.clientHeight;
         this.listHeight.push(height);
       }
+    },
+    selectItem(item){
+      this.$emit('selectId',item)
     }
   },
   watch: {
@@ -99,7 +101,6 @@ export default {
     },
     scrollY(newY){
       const listHeight = this.listHeight;
-      console.log(listHeight)
       //当滚动到顶部
       if(newY > 0){
         this.currentIndex = 0
