@@ -1,10 +1,13 @@
 <template>
-  <div class="song-list">
+  <div class="rank-list">
     <ul>
-      <li @click="selectItem(song,index)" v-for="(song,index) in songs" :key="index">
+      <li @click="selectItem(rank,index)" v-for="(rank,index) in songs" :key="index">
+        <div class="img">
+            <img src="" alt="" width="80px" height="80px">
+        </div>
         <div class="content">
-          <h2 class="name">{{song.name}}</h2>
-          <p class="desc">{{getDesc(song)}}</p>
+          <h2 class="name">{{rank.name}}</h2>
+          <p class="desc">{{getDesc(rank)}}</p>
         </div>
       </li>
     </ul>
@@ -18,25 +21,32 @@ export default {
       defaulf:[]
     }
   },
+  created(){
+    console.log(this.songs)
+  },
   methods:{
-    getDesc(song){
-      return `${song.singer} - ${song.album}`
+    getDesc(rank){
+      return `${rank.singer} _ ${rank.album}`
     },
-    selectItem(song,index){
-      this.$emit('selectSong',{song,index})
+    selectItem(rank,index){
+      this.$emit('selectrank',{rank,index})
     }
   }
 }
 </script>
 <style lang="stylus" scoped>
 @import '../../common/stylus/variable';
-.song-list
+.rank-list
   // margin-top 10px
   padding 10px
   li
     margin 10px 0
+    display flex
+    .img
+      // flex 2
     .content
       // background $color-text-l
+      flex 1
       .name
         color $color-text-ll
         font-size $font-size-medium-x

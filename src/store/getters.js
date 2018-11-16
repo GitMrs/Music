@@ -1,4 +1,6 @@
 export const singer = state => state.singer
+export const rank = state => state.rank
+export const pathName = state => state.pathName
 export const playing = state => state.playing
 export const fullScreen = state=> state.fullScreen
 export const playList = state => state.playList
