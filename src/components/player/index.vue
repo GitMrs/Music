@@ -9,20 +9,20 @@
     >
       <div class="full-screen" v-show='fullScreen'>
       <div class="background">
-        <img width="100%" height="100%" :src='this.playList[this.currentIndex].image'>
+        <img width="100%" height="100%" :src="currentSong.image">
       </div>
       <div class="top">
         <div class="back" @click='back'>
           <i class="icon-back"></i>
         </div>
-        <h1 class="title">{{this.playList[this.currentIndex].name}}</h1>
-        <h2 class="subtitle">{{this.playList[this.currentIndex].album}}</h2>
+        <h1 class="title" v-html="currentSong.name"></h1>
+        <h2 class="subtitle" v-html="currentSong.singer"></h2>
       </div>
       <div class="middle">
         <div class="middle-l" ref="middleL">
           <div class="cd-wrapper" ref="cdWrapper">
-            <div class="cd" >
-              <img class="image" :src='this.playList[this.currentIndex].image'>
+            <div class="cd" :class="adClass" >
+              <img class="image" :src="currentSong.image">
             </div>
           </div>
           <div class="playing-lyric-wrapper">
@@ -36,23 +36,24 @@
           <span class="dot"></span>
         </div>
         <div class="progress-wrapper">
-          <span class="time time-l"></span>
+          <span class="time time-l" v-html="_format(this.currentTime)" ></span>
           <div class="progress-bar-wrapper">
+            <progress-bar :precent="precent"  @percenChange="percenChange" />
           </div>
-          <span class="time time-r"></span>
+          <span class="time time-r" v-html="_format(currentSong.duration)"></span>
         </div>
         <div class="operators">
           <div class="icon i-left">
-            <i class="icon-loop" ></i>
+            <i :class="iconMode" @click="changeModel" ></i>
           </div>
-          <div class="icon i-left">
-            <i  class="icon-prev"></i>
+          <div class="icon i-left" :class="disableCls">
+            <i  class="icon-prev" @click="prevPlay"></i>
           </div>
-          <div class="icon i-center">
-            <i class="icon-play" ></i>
+          <div class="icon i-center" :class="disableCls">
+            <i :class="playIcon" @click="togglePlay" ></i>
           </div>
-          <div class="icon i-right" >
-            <i  class="icon-next"></i>
+          <div class="icon i-right" :class="disableCls">
+            <i  class="icon-next" @click="nextPlay"></i>
           </div>
           <div class="icon i-right">
             <i class="icon-not-favorite" ></i>
@@ -64,32 +65,64 @@
     <transition name='min'>
       <div class="min-screen" v-show='!fullScreen'>
        <div class="icon" @click="full">
-          <img class="play" width="40" height="40" :src='this.playList[this.currentIndex].image'>
+          <img class="play" width="40" height="40" :src="currentSong.image">
         </div>
         <div class="text">
-          <h2 class="name" >xx</h2>
-          <p class="desc" >xx</p>
+          <h2 class="name" v-html="currentSong.name"  ></h2>
+          <p class="desc" v-html="currentSong.singer" ></p>
         </div>
         <div class="control">
-          
+          <progress-circle :radius="radius" :percent="precent">
+            <i :class="miniIcon" class="icon-mini" @click.stop="togglePlay"></i>
+          </progress-circle>
         </div>
         <div class="control" @click.stop="showPlaylist">
           <i class="icon-playlist"></i>
         </div>
     </div>  
     </transition>
-    <audio :src="this.playList[this.currentIndex].url" :autoplay='playing'></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error='error' @timeupdate="updataTime"></audio>
   </div>    
 </template>
 <script>
 import { mapGetters, mapMutations } from "vuex";
+import {playMode} from '../../common/js/config'
 import animations from "create-keyframe-animation";
 import { prefixStyle } from "../../common/js/dom";
+import ProgressBar from '../../base/progress-bar';
+import ProgressCircle from '../../base/progress-circle'
 const transform = prefixStyle("transform");
 const transitionDuration = prefixStyle("transitionDuration");
 export default {
+  data(){
+    return {
+      songReady: false,
+      currentTime:0,
+      radius: 32
+    }
+  },
   computed: {
-    ...mapGetters(["fullScreen", "playList", "currentSong","playing"])
+    adClass() {
+      return this.playing ? "play" : "pause";
+    },
+    playIcon() {
+      return this.playing ? "icon-pause" : "icon-play";
+    },
+    disableCls(){
+      return this.songReady ? "" : "disable"
+    },
+    precent(){
+      return this.currentTime / this.currentSong.duration;
+    },
+    iconMode(){
+      console.log(this.playMode)
+      return this.playMode === playMode.sequence ? 'icon-sequence' : this.playMode === playMode.loop ? 
+      'icon-loop' : 'icon-random'
+    },
+    miniIcon() {
+      return this.playing ? "icon-pause-mini" : "icon-play-mini";
+    },
+    ...mapGetters(["fullScreen", "playList", "currentSong", "playing","currentIndex","playMode"])
   },
   methods: {
     back() {
@@ -97,6 +130,53 @@ export default {
     },
     full() {
       this.setFullScreen(true);
+    },
+    togglePlay() {
+      this.setPlayState(!this.playing);
+    },
+    nextPlay(){
+      if(!this.songReady) return
+      let index = this.currentIndex + 1;
+      if(index === this.playList.length){
+        index = 0
+      }
+      this.setCurrentIndex(index)
+      if(!this.playing){
+        this.togglePlay()
+      }
+      this.songReady = false
+    },
+    prevPlay(){
+      if(!this.songReady) return
+      let index = this.currentIndex - 1;
+      if(index === -1){
+        let index = this.playList.length - 1;
+      }
+      this.setCurrentIndex(index)
+      if(!this.playing){
+        this.togglePlay()
+      }
+      this.songReady = false
+    },
+    ready(){
+      this.songReady = true;
+    },
+    error(){
+      this.songReady = true;
+    },
+    updataTime(e){
+      this.currentTime = e.target.currentTime
+    },
+    percenChange(percent){
+      this.$refs.audio.currentTime = this.currentSong.duration * percent
+      if(!this.playing){
+        this.togglePlay()
+      }
+    },
+    changeModel(){
+      const mode = (this.playMode + 1) % 3;
+      console.log(this.playMode)
+      this.setPlayMode(mode)
     },
     enter(el, done) {
       const { x, y, scale } = this._getPosAndScale();
@@ -152,13 +232,48 @@ export default {
         scale
       };
     },
+    _format(interval){
+      interval = interval | 0
+      const minute = interval / 60 | 0
+      const second = this._pad(interval % 60) 
+      return `${minute}:${second}`
+    },
+    _pad(num, n=2){
+      let len = num.toString().length
+      while(len <  n){
+        num = '0' + num
+        len ++
+      }
+      return num
+    },
     showPlaylist() {},
     ...mapMutations({
-      setFullScreen: "SET_FULL_SCREEN"
+      setFullScreen: "SET_FULL_SCREEN",
+      setPlayState: "SET_PLAYING_STATE",
+      setCurrentIndex: "SET_CURRENT_INDEX",
+      setPlayMode:"SET_PLAY_MODE"
     })
   },
   created() {
-    console.log(this.currentSong)
+    console.log(this.playList);
+    console.log(this.currentSong);
+  },
+  watch: {
+    currentSong() {
+      this.$nextTick(() => {
+        this.$refs.audio.play();
+      });
+    },
+    playing(newPlaying) {
+      const audio = this.$refs.audio;
+      this.$nextTick(() => {
+        newPlaying ? audio.play() : audio.pause();
+      });
+    }
+  },
+  components:{
+    ProgressBar,
+    ProgressCircle
   }
 };
 </script>
@@ -166,15 +281,10 @@ export default {
 @import '../../common/stylus/variable';
 
 .player {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 150;
-  background: $color-background;
-
   .full-screen {
+    position fixed;
+    left 0;
+    bottom: 0;
     height: 100%;
     width: 100%;
     background: $color-highlight-background;
@@ -256,15 +366,6 @@ export default {
             box-sizing: border-box;
             border: 10px solid rgba(255, 255, 255, 0.1);
             border-radius: 50%;
-
-            &.play {
-              animation: rotate 20s linear infinite;
-            }
-
-            &.pause {
-              animation-play-state: paused;
-            }
-
             .image {
               position: absolute;
               left: 0;
@@ -273,6 +374,12 @@ export default {
               height: 100%;
               border-radius: 50%;
             }
+          }
+          .play {
+            animation: rotate 20s linear infinite;
+          }
+          .pause {
+            animation-play-state: paused;
           }
         }
 
@@ -483,6 +590,16 @@ export default {
         top: 0;
       }
     }
+  }
+}
+
+@keyframes rotate {
+  0% {
+    tranfrom: rotate(0);
+  }
+
+  100% {
+    tranfrom: rotate(360deg);
   }
 }
 </style>
