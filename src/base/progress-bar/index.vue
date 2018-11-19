@@ -40,7 +40,7 @@ export default {
       const offsetWidth = Math.min(this.$refs.progressBar.clientWidth - BAR_WIDTH, Math.max(0,this.touch.left + deltax));
       this._offset(offsetWidth)
     },
-    progressTouchEnd(e){
+    progressTouchEnd(){
       this.touch.initied = false
       this._triggerPercent()
     },

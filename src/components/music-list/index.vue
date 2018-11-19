@@ -5,6 +5,7 @@
       <h3>{{title}}</h3>
     </div>
     <div class="music-bg" :style="bgStyle" ref="bgWrap">
+      <button class="random" @click="randomFn">随机播放</button>
     </div>
     <div class="bg-layer" ref="layer"></div>
     <Scroll class="music-wrap" :data="songs" ref="musicWrap" :probe-type='probeType' @scroll="scroll" :listen-scroll='listenScroll'>
@@ -19,8 +20,10 @@
 import Scroll from "../../base/scroll";
 import SongList from "../../base/song-list";
 import RankList from '../../base/rank-list';
+import {prefixStyle} from '../../common/js/dom';
 import { mapActions } from "vuex";
 const RESERVED_HEIGHT = 40;
+const transform = prefixStyle('transform')
 export default {
   name: "music",
   props: {
@@ -52,7 +55,6 @@ export default {
     this.probeType = 3;
     this.listenScroll = true;
     this.pathName = this.$router.history.current.matched[0].name;
-    console.log(this.songs)
   },
   computed: {
     bgStyle() {
@@ -70,22 +72,23 @@ export default {
         this.$router.push("/singer");
       }
     },
+    randomFn(){
+      this.randomPlay({
+        list:this.songs
+      })
+    },
     selectSong(item) {
-      // console.log(item)
       this.selectPlay({
         list: this.songs,
         index: item.index
       });
     },
-    ...mapActions(["selectPlay"])
+    ...mapActions(["selectPlay","randomPlay"])
   },
   watch: {
     scrollY(newY) {
       let translateY = Math.max(this.minTransalteY, newY);
-      this.$refs.layer.style["transform"] = `translate3d(0,${translateY}px,0)`;
-      this.$refs.layer.style[
-        "-webkit-transform"
-      ] = `translate3d(0,${translateY}px,0)`;
+      this.$refs.layer.style[transform] = `translate3d(0,${translateY}px,0)`;
       let opcity = newY / this.minTransalteY;
       let parent = Math.abs(newY / this.imageHeight);
       let scale = 1;
@@ -128,6 +131,19 @@ export default {
     padding-top: 70%;
     transform-origin: top;
     background-size: cover;
+    .random{
+      position absolute
+      left 50%
+      transform translate3d(-50%,0,0)
+      bottom 10px
+      border 1px solid $color-theme;
+      color $color-theme;
+      background transparent;
+      line-height 33px;
+      padding 0 10px;
+      border-radius 5px;
+
+    }
   }
 
   .Header {

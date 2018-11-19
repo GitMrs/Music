@@ -1,5 +1,3 @@
-import { stat } from "fs";
-
 export const singer = state => state.singer
 export const rank = state => state.rank
 export const pathName = state => state.pathName

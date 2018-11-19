@@ -19,3 +19,16 @@ export function getRankListData(id){
     })
     return jsonp(url,data,options)
 }
+// export function songLyric(id){
+//     const url = "https://api.bzqll.com/music/tencent/lrc";
+//     const data = Object.assign({},{
+//         id:id,
+//         key:579621905,
+//     })
+//     axios.get(url,{
+//         params:data
+//     }).then(res => {
+//         console.log(res.data)
+//         return res.data
+//     })
+// }

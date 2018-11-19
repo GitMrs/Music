@@ -19,9 +19,7 @@ export function getDiscList() {
         sortId:3,
         limit:60
     }
-    axios.get(url,{
+    return axios.get(url,{
         params:data
-    }).then(res => {
-        return res
     })
 }

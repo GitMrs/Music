@@ -6,7 +6,7 @@
             <img src="" alt="" width="80px" height="80px">
         </div>
         <div class="content">
-          <h2 class="name">{{rank.name}}</h2>
+          <h2 class="name">{{rank.data.songname}}</h2>
           <p class="desc">{{getDesc(rank)}}</p>
         </div>
       </li>
