@@ -9,6 +9,7 @@
         </div>
       </div>
     </Scroll>
+    <router-view />
   </div>
 </template>
 <script>
@@ -42,7 +43,7 @@ export default {
       const url = "https://api.bzqll.com/music/tencent/hotSongList";
       const data = {
         key: 579621905,
-        categoryId: 10000000,
+        // categoryId: 10000000,
         sortId: 3,
         limit: 60
       };

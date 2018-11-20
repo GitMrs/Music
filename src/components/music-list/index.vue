@@ -10,8 +10,8 @@
     <div class="bg-layer" ref="layer"></div>
     <Scroll class="music-wrap" :data="songs" ref="musicWrap" :probe-type='probeType' @scroll="scroll" :listen-scroll='listenScroll'>
       <div class="list-wrap">
-        <song-list v-if="pathName === 'Singer'" @selectSong="selectSong" :songs="songs" />
-        <rank-list v-else-if="pathName === 'Rank'" @selectSong="selectSong" :songs="songs" ></rank-list>
+        <song-list @selectSong="selectSong" :songs="songs" :rank="rank" />
+        <!-- <rank-list v-else-if="pathName === 'Rank'" @selectSong="selectSong" :songs="songs" ></rank-list> -->
       </div>
     </Scroll>
   </div>
@@ -22,10 +22,12 @@ import SongList from "../../base/song-list";
 import RankList from '../../base/rank-list';
 import {prefixStyle} from '../../common/js/dom';
 import { mapActions } from "vuex";
+import {playlistMixin} from "../../common/js/mixin"
 const RESERVED_HEIGHT = 40;
 const transform = prefixStyle('transform')
 export default {
   name: "music",
+  mixins:[playlistMixin],
   props: {
     bgImage: {
       type: String,
@@ -42,6 +44,10 @@ export default {
     name: {
       type: String,
       defaulf: ""
+    },
+    rank: {
+      type:Boolean,
+      defaulf:false
     }
   },
   data() {
@@ -66,11 +72,7 @@ export default {
       this.scrollY = pos.y;
     },
     back() {
-      if (this.pathName === "Rank") {
-        this.$router.push("/rank");
-      } else if (this.pathName === "Singer") {
-        this.$router.push("/singer");
-      }
+     this.$router.back()
     },
     randomFn(){
       this.randomPlay({
@@ -78,10 +80,16 @@ export default {
       })
     },
     selectSong(item) {
+      console.log(item)
       this.selectPlay({
         list: this.songs,
         index: item.index
       });
+    },
+    handlePlaylist(playlist){
+      const bottom = playlist.length > 0 ? "60px" : "";
+      this.$refs.musicWrap.$el.style.bottom = bottom
+      this.$refs.musicWrap.refresh()
     },
     ...mapActions(["selectPlay","randomPlay"])
   },
@@ -142,7 +150,6 @@ export default {
       line-height 33px;
       padding 0 10px;
       border-radius 5px;
-
     }
   }
 

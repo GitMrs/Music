@@ -26,10 +26,12 @@
 import Scroll from "../scroll";
 import Loading from '../loading'
 import { getData } from "../../common/js/dom";
+import {playlistMixin} from '../../common/js/mixin';
 const ANCHOR_HEIGHT = 24;
 const TITLE_HEIGHT = 34
 export default {
   name: "listView",
+  mixins:[playlistMixin],
   props: {
     data: {
       type: Array,
@@ -77,6 +79,12 @@ export default {
     },
     scroll(pos) {
       this.scrollY = pos.y;
+    },
+    handlePlaylist(){
+      // const bottom = playlist.length > 0 ? "60px" : "";
+    
+      // this.$refs.musicWrap.$el.style.bottom = bottom
+      // this.$refs.musicWrap.refresh()
     },
     _calulateHeight() {
       this.listHeight = [];
@@ -154,6 +162,7 @@ export default {
   padding: 10px;
 
   ul {
+
     li {
       margin-top: 10px;
 

@@ -2,7 +2,7 @@
   <div class="dist">
     <h3 class="title">热门歌单</h3>
     <div class="dist-main">
-      <dl v-for="(item,index) in discData" :key="index">
+      <dl v-for="(item,index) in discData" :key="index" @click="goDist(item)">
         <dd>
           <img v-lazy="item.pic" :alt="index" width="100%">
         </dd>
@@ -16,6 +16,7 @@
   </div>
 </template>
 <script>
+import {mapMutations} from 'vuex';
 export default {
   name: "disc",
   props: {
@@ -23,6 +24,17 @@ export default {
   },
   data() {
     return {};
+  },
+  methods:{
+    goDist(item){
+      this.$router.push({
+        path:`/recommend/${item.id}`
+      })
+      this.setDisc(item)
+    },
+    ...mapMutations({
+      setDisc:"SET_DISC"
+    })
   }
 };
 </script>

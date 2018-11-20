@@ -26,7 +26,7 @@
         <div class="middle-l" ref="middleL">
           <div class="cd-wrapper" ref="cdWrapper">
             <div class="cd" :class="adClass" >
-              <img class="image" :src="currentSong.image">
+              <img class="image" :src="currentSong.image ? currentSong.image : currentSong.pic">
             </div>
           </div>
           <div class="playing-lyric-wrapper">
@@ -79,7 +79,7 @@
     <transition name='min'>
       <div class="min-screen" v-show='!fullScreen'>
         <div class="icon" @click="full">
-          <img class="play" width="40" height="40" :src="currentSong.image">
+          <img class="play" width="40" height="40" :src="currentSong.image ? currentSong.image : currentSong.pic">
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"  ></h2>
@@ -174,35 +174,37 @@ export default {
     },
     nextPlay() {
       if (!this.songReady) return;
-      let index = this.currentIndex + 1;
-      if (index === 1) {
-        this.loop();
-      } else {
-        if (index === this.playList.length) {
-          index = 0;
+      if(this.playList.length === 1){
+        loop()
+        return
+      }else{
+        let index = this.currentIndex + 1;
+        if(index === this.playList.length){
+          index = 0
         }
-        this.setCurrentIndex(index);
-        if (!this.playing) {
-          this.togglePlay();
+        this.setCurrentIndex(index)
+        if(!this.playing){
+          this.togglePlay()
         }
-        this.songReady = false;
       }
+      this.songReady = false
     },
     prevPlay() {
       if (!this.songReady) return;
-      let index = this.currentIndex - 1;
-      if (index === 1) {
-        this.loop()
-      } else {
-        if (index === -1) {
+      if(this.playList.length === 1){
+        loop()
+        return
+      }else{
+        let index = this.currentIndex - 1;
+        if(index === -1){
           index = this.playList.length - 1;
         }
-        this.setCurrentIndex(index);
-        if (!this.playing) {
-          this.togglePlay();
+        this.setCurrentIndex(index)
+        if(!this.playing){
+          this.togglePlay()
         }
-        this.songReady = false;
       }
+      this.songReady = false
     },
     ready() {
       this.songReady = true;
@@ -444,7 +446,12 @@ export default {
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
         this.$refs.audio.play();
-        this._getLyric(this.currentSong.mid);
+        console.log(this.currentSong)
+        if(!this.currentSong.id){
+          this._getLyric(this.currentSong.mid);
+        }else if(!this.currentSong.mid){
+          this._getLyric(this.currentSong.id);
+        }
       }, 1000);
     },
     playing(newPlaying) {

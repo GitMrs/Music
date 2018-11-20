@@ -22,7 +22,7 @@ export default {
     }
   },
   created(){
-    console.log(this.songs)
+    // console.log(this.songs)
   },
   methods:{
     getDesc(rank){

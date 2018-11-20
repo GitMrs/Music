@@ -26,6 +26,9 @@ const mutations = {
     },
     [types.SET_PATH_NAME](state,pathName){
         state.pathName = pathName
+    },
+    [types.SET_DISC](state,disc){
+        state.disc = disc
     }
 }
 export default mutations
