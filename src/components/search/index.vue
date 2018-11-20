@@ -40,6 +40,7 @@ export default {
     queryChange(val){
       // console.log(val)
       this.query = val
+      console.log(this.query)
     },
     addQuery(val){
       this.$refs.searchBox.setQuery(val)

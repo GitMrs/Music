@@ -9,6 +9,7 @@
           <p class="text" v-html="getDisplayName(item)"></p>
         </div>
       </li>
+      <loading v-show="basMore" />
     </ul>
   </Scroll>
 </template>
@@ -37,15 +38,15 @@ export default {
     }
   },
   methods:{
-    search(){
+    search(type){
       this.basMore = true
       const url = `https://api.bzqll.com/music/tencent/search?key=579621905&s=${this.query}&limit=${NUM}&offset=${this.page}`;
       axios.get(url).then(res => {
         if(res.data.code === 200){
-          if(res.data.data.length === 0){
+          if(res.data.data.length < NUM){
             this.basMore = false
           }else{
-            this.result = this.result.concat(res.data.data)
+             this.result = type ? this.result.concat(res.data.data) : res.data.data
           }
         }
       })
@@ -60,18 +61,17 @@ export default {
       })
     },
     searchMore(){
-      // console.log()
       if(!this.basMore){
         return
       }
         this.page++
-        this.search()
+        this.search(1)
     },
     ...mapActions(["selectPlay"])
   },
   watch:{
     query(){
-      this.search()
+      this.search(0)
     }
   },
   components:{
