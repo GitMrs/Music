@@ -199,7 +199,7 @@ export default {
     right: 0;
     top: 50%;
     transform: translate3d(0, -55%, 0);
-    z-index: 99999;
+    z-index: 0;
 
     .shortcut-wrap {
       width: 10%;

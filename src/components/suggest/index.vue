@@ -1,7 +1,7 @@
 <template>
-  <Scroll :data='result' class="suggest" @scrollToEnd="searchMore" :pullup="pullup">
+  <Scroll :data='result' class="suggest" @scrollToEnd="searchMore" :pullup="pullup" @beforeScroll="listScroll" :beforeScroll="beforeScroll">
     <ul class="suggest-list">
-      <li class="suggest-item" v-for="(item, index) in result" :key="index" @click="playMusic({item,index})">
+      <li class="suggest-item" v-for="(item, index) in result" :key="index" @click="playMusic(item)">
         <div class="icon">
           <i class="icon-music"></i>
         </div>
@@ -11,6 +11,9 @@
       </li>
       <loading v-show="basMore" />
     </ul>
+    <div v-show="!basMore && !result.length" class="no-result-wrapper">
+      <no-result title="抱歉，暂无搜索结果"></no-result>
+    </div>
   </Scroll>
 </template>
 <script>
@@ -18,6 +21,7 @@ import {searchKey} from '../../api/search';
 import {filterSinger} from '../../common/js/song';
 import Scroll from '../../base/scroll';
 import Loading from '../../base/loading';
+import NoResult from '../../base/no-result';
 import axios from 'axios';
 import {mapActions} from 'vuex';
 const TYPE_SINGER = 'singer';
@@ -34,11 +38,15 @@ export default {
       page:1,
       pullup:true,
       basMore:true,
+      beforeScroll:true,
       result:[]
     }
   },
   methods:{
     search(type){
+      if(!this.query){
+        return
+      }
       this.basMore = true
       const url = `https://api.bzqll.com/music/tencent/search?key=579621905&s=${this.query}&limit=${NUM}&offset=${this.page}`;
       axios.get(url).then(res => {
@@ -46,7 +54,7 @@ export default {
           if(res.data.data.length < NUM){
             this.basMore = false
           }else{
-             this.result = type ? this.result.concat(res.data.data) : res.data.data
+            this.result = type ? this.result.concat(res.data.data) : res.data.data
           }
         }
       })
@@ -55,10 +63,11 @@ export default {
       return `${item.name} - ${item.singer}`
     },
     playMusic(item){
-      this.selectPlay({
-        list: this.result,
-        index: item.index
-      })
+      this.insertSong(item)
+      this.$emit('selectHistory')
+    },
+    listScroll(){
+      this.$emit('listScroll')
     },
     searchMore(){
       if(!this.basMore){
@@ -67,7 +76,7 @@ export default {
         this.page++
         this.search(1)
     },
-    ...mapActions(["selectPlay"])
+    ...mapActions(["insertSong"])
   },
   watch:{
     query(){
@@ -76,7 +85,8 @@ export default {
   },
   components:{
     Scroll,
-    Loading
+    Loading,
+    NoResult
   }
 }
 </script>

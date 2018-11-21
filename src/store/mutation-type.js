@@ -8,3 +8,4 @@ export const SET_CURRENT_INDEX = 'SET_CURRENT_INDEX';
 export const SET_RANK = 'SET_RANK';
 export const SET_PATH_NAME = 'SET_PATH_NAME';
 export const SET_DISC = "SET_DISC"
+export const SET_HISTORY_LIST = "SET_HISTORY_LIST";

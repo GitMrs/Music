@@ -54,7 +54,6 @@ export default {
       this.setRank(item)
     },
     handlePlaylist(playlist){
-      console.log(playlist.length)
       const bottom = playlist.length > 1 ? "60" : ""
       this.$refs.rank.$el.style.bottom = `${bottom}px`
       this.$refs.rank.refresh()

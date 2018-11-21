@@ -27,11 +27,7 @@ export default {
   },
   methods:{
     getDesc(song){
-      if(song.album){
-        return `${song.singer} - ${song.album}`
-      }else{
-        return song.albumname
-      }
+      return `${song.singer} - ${song.album}`
     },
     selectItem(song,index){
       this.$emit('selectSong',{song,index})

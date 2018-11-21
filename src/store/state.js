@@ -1,4 +1,5 @@
 import {playMode} from '../common/js/config';
+import {loadSearch} from '../common/js/cache';
 const states = {
     //路由
     pathName:'',
@@ -13,6 +14,9 @@ const states = {
     sequenceList:[],
     mode:playMode.sequence,
     currentIndex:-1,
-    disc:{}
+    // 搜索数据
+    disc:{},
+    // 搜索历史
+    historyList:loadSearch()
 }
 export default states

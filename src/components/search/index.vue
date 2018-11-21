@@ -4,69 +4,125 @@
       <Search ref="searchBox" :placeholder="placeholder" @query="queryChange" />
     </div>
     <div class="shortcut-wrap" v-show="!query" >
-      <div class="shortcut">
-        <div class="hot-key">
-          <h1 class="title">热门搜索</h1>
-          <ul>
-            <li @click="addQuery(item.k)" v-for="(item, index) in hotKey" :key="index" class="item">
-              <span>{{item.k}}</span>
-            </li>
-          </ul>
+      <Scroll ref="shortcut" class="shortcut" :data="shortcut">
+       <div>
+          <div class="hot-key">
+            <h1 class="title">热门搜索</h1>
+            <ul>
+              <li @click="addQuery(item.k)" v-for="(item, index) in hotKey" :key="index" class="item">
+                <span>{{item.k}}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="search-history" v-show='historyList.length'>
+            <h1 class="title">
+              <span class="text">搜索历史</span>
+              <span class="clear" @click="deleteAll" >
+              <i class="icon-clear"></i>
+            </span>
+            </h1>
+            <search-list :searches='historyList' @clickItem="queryChange" @deleteItem="deleteHistory" />
+          </div>
         </div>
-      </div>
+      </Scroll>
     </div>
     <div class="search-suggest" v-show="query">
-      <Suggest :query="query" />
+      <Suggest :query="query" @listScroll="blurInput" @selectHistory="saveSearch"/>
     </div>
+    <Confirm ref="confirm" :text="confirmTitle" @sureFn="sureClear" />
   </div>
 </template>
 <script>
 import Search from "../../base/search-box";
 import {getHotKey} from '../../api/search';
+import {mapActions, mapGetters} from 'vuex';
 import Suggest from '../suggest';
+import Confirm from '../../base/confirm';
+import Scroll from '../../base/scroll';
+import SearchList from '../../base/search-list';
 export default {
   name:"search",
   data(){
     return {
       placeholder:"搜索歌手、歌曲",
       hotKey:[],
-      query:""
+      query:"",
+      confirmTitle:"是否确认清空所以删除?",
+      refreshDelay:20
     }
   },
   created(){
     this._initHotKet()
+    console.log(this.historyList)
   },
   methods:{
     queryChange(val){
-      // console.log(val)
       this.query = val
-      console.log(this.query)
+      this.placeholder = val
+      // console.log(this.query)
     },
     addQuery(val){
       this.$refs.searchBox.setQuery(val)
     },
+    blurInput(){
+      this.$refs.searchBox.blur()
+    },
+    saveSearch(){
+      this.setSearchHistory(this.query)
+    },
+    deleteAll(){
+      this.$refs.confirm.show()
+    },
+    sureClear(){
+      this.clearHistory()
+    },
     _initHotKet(){
       getHotKey().then(res => {
-        console.log(res)
         if(res.code === 0){
           this.hotKey = res.data.hotkey.slice(0, 10);
         }
       })
-    }
+    },
+    ...mapActions(["setSearchHistory","deleteHistory","clearHistory"])
   },
   components:{
     Search,
-    Suggest
+    Suggest,
+    SearchList,
+    Scroll,
+    Confirm
+  },
+  computed:{
+    shortcut(){
+      return this.hotKey.concat(this.historyList)
+    },
+    ...mapGetters(['historyList'])
+  },
+  watch:{
+    query(newQuery){
+      if(!newQuery){
+        setTimeout(() => {
+          this.$refs.shortcut.refresh()
+        }, 20)
+      }
+    }
   }
 }
 </script>
 <style lang="stylus" scoped>
 @import '../../common/stylus/variable';
+@import '../../common/stylus/mixin';
 .search
   .search-box-wrap
      margin: 20px
   .shortcut-wrap
+    position: fixed
+    top: 178px
+    bottom: 0
+    width: 100%
     .shortcut
+      height: 100%
+      overflow: hidden
       .hot-key
         margin: 0 20px 20px 20px
         .title
@@ -82,6 +138,22 @@ export default {
             background: $color-highlight-background
             font-size: $font-size-medium
             color: $color-text-d
+      .search-history
+          position: relative
+          margin: 0 20px
+          .title
+            display: flex
+            align-items: center
+            height: 40px
+            font-size: $font-size-medium
+            color: $color-text-l
+            .text
+              flex: 1
+            .clear
+              extend-click()
+              .icon-clear
+                font-size: $font-size-medium
+                color: $color-text-d
   .search-suggest
     position: fixed
     width: 100%

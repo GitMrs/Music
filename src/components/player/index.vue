@@ -54,7 +54,7 @@
           <div class="progress-bar-wrapper">
             <progress-bar :precent="precent"  @percenChange="percenChange" />
           </div>
-          <span class="time time-r" v-html="_format(currentSong.duration)"></span>
+          <span class="time time-r" v-html="_format(this.duration)"></span>
         </div>
         <div class="operators">
           <div class="icon i-left">
@@ -95,6 +95,7 @@
         </div>
       </div>  
     </transition>
+    <PlayList :showFlag="showFlag" ref="PlayList" />
     <audio :src="currentSong.url" ref="audio" @canplay="ready" @error='error' @timeupdate="updataTime" @ended="ended"></audio>
   </div>    
 </template>
@@ -108,6 +109,7 @@ import ProgressCircle from "../../base/progress-circle";
 import Lyric from "lyric-parser";
 import { shuffle } from "../../common/js/util";
 import Scroll from "../../base/scroll";
+import PlayList from '../playlist';
 import axios from "axios";
 const transform = prefixStyle("transform");
 const transitionDuration = prefixStyle("transitionDuration");
@@ -116,9 +118,11 @@ export default {
     return {
       songReady: false,
       currentTime: 0,
+      duration:0,
       radius: 32,
       currentLyric: null,
       currentLineNum: 0,
+      showFlag:false,
       currentShow: "cd",
       playingLyric: ""
     };
@@ -134,7 +138,7 @@ export default {
       return this.songReady ? "" : "disable";
     },
     precent() {
-      return this.currentTime / this.currentSong.duration;
+      return this.currentTime / this.duration;
     },
     iconMode() {
       return this.playMode === playMode.sequence
@@ -216,7 +220,7 @@ export default {
       this.currentTime = e.target.currentTime;
     },
     percenChange(percent) {
-      const currentTime = this.currentSong.duration * percent;
+      const currentTime = this.duration * percent;
       this.$refs.audio.currentTime = currentTime;
       if (!this.playing) {
         this.togglePlay();
@@ -257,7 +261,9 @@ export default {
       });
       this.setCurrentIndex(index);
     },
-    showPlaylist() {},
+    showPlaylist() {
+      this.$refs.PlayList.show()
+    },
     middleStart(e) {
       this.touch.initiated = true;
       this.touch.moved = false;
@@ -436,7 +442,6 @@ export default {
       if (newSong.id === oldSong.id) {
         return;
       }
-
       if (this.currentLyric) {
         this.currentLyric.stop();
         this.currentTime = 0;
@@ -446,6 +451,7 @@ export default {
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
         this.$refs.audio.play();
+        this.duration = this.$refs.audio.duration
         console.log(this.currentSong)
         if(!this.currentSong.id){
           this._getLyric(this.currentSong.mid);
@@ -464,7 +470,8 @@ export default {
   components: {
     ProgressBar,
     ProgressCircle,
-    Scroll
+    Scroll,
+    PlayList
   }
 };
 </script>

@@ -29,6 +29,9 @@ const mutations = {
     },
     [types.SET_DISC](state,disc){
         state.disc = disc
+    },
+    [types.SET_HISTORY_LIST](state,historyList){
+        state.historyList = historyList
     }
 }
 export default mutations
