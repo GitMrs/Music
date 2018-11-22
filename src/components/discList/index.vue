@@ -4,7 +4,7 @@
     <div class="dist-main">
       <dl v-for="(item,index) in discData" :key="index" @click="goDist(item)">
         <dd>
-          <img v-lazy="item.pic" :alt="index" width="100%">
+          <img v-lazy="item.pic" :alt="index" width="100px">
         </dd>
         <dt>
           <h3>{{item.name}}</h3>

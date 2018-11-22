@@ -18,16 +18,16 @@ export default {
   props:{
     songs:{
       type:Array,
-      defaulf:[]
+      default: []
     },
     rank:{
       type:Boolean,
-      defaulf:false
+      default: false
     }
   },
   methods:{
     getDesc(song){
-      return `${song.singer} - ${song.album}`
+      return `${song.singer} - ${song.name}`
     },
     selectItem(song,index){
       this.$emit('selectSong',{song,index})
@@ -44,9 +44,6 @@ export default {
         return index
       }
     }
-  },
-  created(){
-    console.log(this.songs)
   }
 }
 </script>
@@ -55,7 +52,7 @@ export default {
 @import "../../common/stylus/mixin";
 .song-list
   // margin-top 10px
-  padding 10px
+  padding 5px 26px
   .item
     display: flex
     align-items: center

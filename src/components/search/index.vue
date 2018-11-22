@@ -1,7 +1,7 @@
 <template>
   <div class="search">
     <div class="search-box-wrap">
-      <Search ref="searchBox" :placeholder="placeholder" @query="queryChange" />
+      <Search ref="searchBox" :placeholder="placeholder" @query="onQueryChange" />
     </div>
     <div class="shortcut-wrap" v-show="!query" >
       <Scroll ref="shortcut" class="shortcut" :data="shortcut">
@@ -21,7 +21,7 @@
               <i class="icon-clear"></i>
             </span>
             </h1>
-            <search-list :searches='historyList' @clickItem="queryChange" @deleteItem="deleteHistory" />
+            <search-list :searches='historyList' @clickItem="onQueryChange" @deleteItem="deleteHistory" />
           </div>
         </div>
       </Scroll>
@@ -40,6 +40,7 @@ import Suggest from '../suggest';
 import Confirm from '../../base/confirm';
 import Scroll from '../../base/scroll';
 import SearchList from '../../base/search-list';
+import {searchMixin} from '../../common/js/mixin';
 export default {
   name:"search",
   data(){
@@ -51,25 +52,11 @@ export default {
       refreshDelay:20
     }
   },
+  mixins:[searchMixin],
   created(){
     this._initHotKet()
-    console.log(this.historyList)
   },
   methods:{
-    queryChange(val){
-      this.query = val
-      this.placeholder = val
-      // console.log(this.query)
-    },
-    addQuery(val){
-      this.$refs.searchBox.setQuery(val)
-    },
-    blurInput(){
-      this.$refs.searchBox.blur()
-    },
-    saveSearch(){
-      this.setSearchHistory(this.query)
-    },
     deleteAll(){
       this.$refs.confirm.show()
     },

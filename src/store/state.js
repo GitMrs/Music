@@ -1,5 +1,5 @@
 import {playMode} from '../common/js/config';
-import {loadSearch} from '../common/js/cache';
+import {loadSearch,loadPlay,loadFavorite} from '../common/js/cache';
 const states = {
     //路由
     pathName:'',
@@ -17,6 +17,9 @@ const states = {
     // 搜索数据
     disc:{},
     // 搜索历史
-    historyList:loadSearch()
+    historyList:loadSearch(),
+    //播放历史
+    playHistory:loadPlay(),
+    favoriteList:loadFavorite()
 }
 export default states

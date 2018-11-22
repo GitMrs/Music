@@ -7,6 +7,7 @@ import Singer from '../components/singer';
 import SingerDetail from '../components/singer-detail';
 import RankDetail from '../components/rank-detail';
 import DistDetail from '../components/disc-deatil';
+import User from '../components/user';
 Vue.use(Router)
 
 export default new Router({
@@ -53,6 +54,11 @@ export default new Router({
                     component:SingerDetail
                 }
             ]
+        },
+        {
+            path: '/user',
+            name:'User',
+            component:User
         }
     ]
 })

@@ -1,66 +1,78 @@
 <template>
   <transition name='list-fade'>
     <div class="playlist" v-show="showFlag" @click="hide">
-      <div class="list-wrap" @click.stop>
-        <div class="list-header">
-          <h1 class="title">
-            <i class="icon" :class="iconMode"></i>
-            <span class="text">www</span>
-            <span class="clear"><i class="icon-clear"></i></span>
-          </h1>
-        </div>
-        <scroll class="list-content" ref="listContent">
-          <ul>
-             <li v-for="(item, index) in sequenceList" :key="index" class="item">
-              <i class="current" :class="getCurrentIcon(item)" ></i>
-              <span class="text">{{item.name}}</span>
-              <span class="like">
-                <i></i>
-              </span>
-              <span class="delete">
-                <i class="icon-delete"></i>
-              </span>
-            </li>
-          </ul>
-        </scroll>
-        <div class="list-operate">
-          <div class="add">
-            <i class="icon-add"></i>
-            <span class="text">添加歌曲队列</span>
+      <div class="list-wrap">
+        <div @click.stop>
+          <div class="list-header">
+            <h1 class="title">
+              <i class="icon" @click="changeMode" :class="iconMode"></i>
+              <span class="text" v-html="modeText"></span>
+              <span class="clear" @click="clearAll"><i class="icon-clear"></i></span>
+            </h1>
+          </div>
+          <scroll class="list-content" ref="listContent" :data="sequenceList" :refreshDelay="refreshDelay">
+            <transition-group tag="ul" name='list' ref="list">
+              <li ref="listItem" v-for="(item, index) in sequenceList" :key="index" class="item" @click="selectItem(item,index)">
+                <i class="current" :class="getCurrentIcon(item)" ></i>
+                <span class="text">{{item.name}}</span>
+                <span class="like" @click.stop="toggleFavorite(item)">
+                  <i class="icon-not-favorite" :class="getFavoriteIcon(item)"></i>
+                </span>
+                <span class="delete" @click.stop="deleteOne(item)">
+                  <i class="icon-delete"></i>
+                </span>
+              </li>
+            </transition-group>
+          </scroll>
+          <div class="list-operate">
+            <div class="add" @click="addSong">
+              <i class="icon-add"></i>
+              <span class="text">添加歌曲队列</span>
+            </div>
           </div>
         </div>
-        <div class="list-close" @click="closeFn">
+         <div class="list-close" @click="closeFn">
           <span>关闭</span>
         </div>
       </div>
+       <Confirm :text="Ctext" ref="confirm" @sureFn='sureFn' />
+       <add-song ref='addSong' />
     </div>
   </transition>
 </template>
 <script>
-import {mapGetters} from 'vuex';
+import {mapGetters,mapMutations,mapActions} from 'vuex';
 import Scroll from '../../base/scroll';
+import Confirm from '../../base/confirm';
+import AddSong from '../add-song';
 import { setTimeout } from 'timers';
+import { playMode } from '../../common/js/config';
+import {playerMixin} from '../../common/js/mixin';
 export default {
   name:"playlist",
+  mixins:[playerMixin],
   data(){
     return {
-      showFlag:false
+      showFlag:false,
+      Ctext:"是否清空列表?",
+      refreshDelay:100
     }
-  },
-  created(){
-
   },
   computed:{
     iconMode(){
-
+      return this.playMode === playMode.loop ? 'icon-loop' : this.playMode === playMode.sequence ? 'icon-sequence' : 'icon-random' 
     },
-    ...mapGetters(['sequenceList','currentSong'])
+    modeText(){
+      return this.playMode === playMode.loop ? '单曲循环' : this.playMode === playMode.sequence ? '顺序播放' : '随机播放'
+    },
+    ...mapGetters(['sequenceList','currentSong','playMode','playList'])
   },
   methods:{
     show(){
       this.showFlag = true
       setTimeout(()=>{
         this.$refs.listContent.refresh()
+        this.scrollToCurrent(this.currentSong)
       },20)
     },
     hide(){
@@ -72,12 +84,62 @@ export default {
       }
       return ''
     },
+    scrollToCurrent(current){
+      const index = this.sequenceList.findIndex(item => {
+        return current.id === item.id
+      })
+      this.$refs.listContent.scrollToElement(this.$refs.listItem[index],300)
+    },
     closeFn(){
       this.$emit('closeFlag')
+    },
+    selectItem(song,index){
+      if(this.playMode === playMode.random){
+        index = this.playList.findIndex((item)=>{
+          return song.id === item.id
+        })
+      }
+      this.setCurrentIndex(index)
+      this.setPlayingState(true)
+    },
+    deleteOne(item){
+      this.deleteSong(item)
+      if(!this.playList.length){
+        this.hide()
+      }
+    },
+    clearAll(){
+      this.$refs.confirm.show()
+    },
+    sureFn(){
+      this.clearSong()
+    },
+    addSong(){
+      this.$refs.addSong.show()
+    },
+    ...mapMutations({
+      setCurrentIndex:"SET_CURRENT_INDEX",
+      setPlayingState:"SET_PLAYING_STATE"
+    }),
+    ...mapActions([
+      "deleteSong",
+      "clearSong"
+    ])
+  },
+  watch:{
+    currentSong(newSong,oldSong){
+      if(!this.showFlag || newSong.id === oldSong.id){
+        return
+      }
+      setTimeout(()=>{
+        this.scrollToCurrent(newSong)
+      },200)
     }
   },
   components:{
-    Scroll
+    Scroll,
+    Confirm,
+    AddSong
   }
 };
 </script>

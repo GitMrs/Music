@@ -58,7 +58,7 @@
         </div>
         <div class="operators">
           <div class="icon i-left">
-            <i :class="iconMode" @click="changeModel" ></i>
+            <i :class="iconMode" @click="changeMode" ></i>
           </div>
           <div class="icon i-left" :class="disableCls">
             <i  class="icon-prev" @click="prevPlay"></i>
@@ -69,8 +69,8 @@
           <div class="icon i-right" :class="disableCls">
             <i  class="icon-next" @click="nextPlay"></i>
           </div>
-          <div class="icon i-right">
-            <i class="icon-not-favorite"></i>
+          <div class="icon i-right" @click.stop="toggleFavorite(currentSong)">
+            <i :class="getFavoriteIcon(currentSong)"></i>
           </div>
         </div>
       </div>
@@ -100,17 +100,17 @@
   </div>    
 </template>
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations,mapActions } from "vuex";
 import { playMode } from "../../common/js/config";
 import animations from "create-keyframe-animation";
 import { prefixStyle } from "../../common/js/dom";
 import ProgressBar from "../../base/progress-bar";
 import ProgressCircle from "../../base/progress-circle";
 import Lyric from "lyric-parser";
-import { shuffle } from "../../common/js/util";
 import Scroll from "../../base/scroll";
 import PlayList from '../playlist';
 import axios from "axios";
+import {playerMixin} from '../../common/js/mixin';
 const transform = prefixStyle("transform");
 const transitionDuration = prefixStyle("transitionDuration");
 export default {
@@ -127,6 +127,7 @@ export default {
       playingLyric: ""
     };
   },
+  mixins:[playerMixin],
   computed: {
     adClass() {
       return this.playing ? "play" : "pause";
@@ -179,7 +180,7 @@ export default {
     nextPlay() {
       if (!this.songReady) return;
       if(this.playList.length === 1){
-        loop()
+        this.loop()
         return
       }else{
         let index = this.currentIndex + 1;
@@ -196,7 +197,7 @@ export default {
     prevPlay() {
       if (!this.songReady) return;
       if(this.playList.length === 1){
-        loop()
+        this.loop()
         return
       }else{
         let index = this.currentIndex - 1;
@@ -212,9 +213,12 @@ export default {
     },
     ready() {
       this.songReady = true;
+      this.savePlayHistory(this.currentSong)
     },
     error() {
       this.songReady = true;
+      return false
+      
     },
     updataTime(e) {
       this.currentTime = e.target.currentTime;
@@ -228,18 +232,6 @@ export default {
       if (this.currentLyric) {
         this.currentLyric.seek(currentTime * 1000);
       }
-    },
-    changeModel() {
-      const mode = (this.playMode + 1) % 3;
-      this.setPlayMode(mode);
-      let list = [];
-      if (mode === playMode.random) {
-        list = shuffle(this.sequenceList);
-      } else if (mode === playMode.loop) {
-        list = this.sequenceList;
-      }
-      this.resetCurrentIndex(list);
-      this.setPlayList(list);
     },
     ended() {
       if (this.playMode === playMode.loop) {
@@ -432,11 +424,12 @@ export default {
       setCurrentIndex: "SET_CURRENT_INDEX",
       setPlayMode: "SET_PLAY_MODE",
       setPlayList: "SET_PLAYLIST"
-    })
+    }),
+    ...mapActions(['savePlayHistory'])
   },
   watch: {
     currentSong(newSong, oldSong) {
-      if (!newSong) {
+      if (!newSong.id) {
         return;
       }
       if (newSong.id === oldSong.id) {
@@ -452,12 +445,7 @@ export default {
       this.timer = setTimeout(() => {
         this.$refs.audio.play();
         this.duration = this.$refs.audio.duration
-        console.log(this.currentSong)
-        if(!this.currentSong.id){
-          this._getLyric(this.currentSong.mid);
-        }else if(!this.currentSong.mid){
-          this._getLyric(this.currentSong.id);
-        }
+        this.currentSong.mid ? this._getLyric(this.currentSong.mid) : this._getLyric(this.currentSong.id)
       }, 1000);
     },
     playing(newPlaying) {

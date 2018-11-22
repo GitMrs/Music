@@ -9,3 +9,5 @@ export const SET_RANK = 'SET_RANK';
 export const SET_PATH_NAME = 'SET_PATH_NAME';
 export const SET_DISC = "SET_DISC"
 export const SET_HISTORY_LIST = "SET_HISTORY_LIST";
+export const SET_PLAY_HISTORY = 'SET_PLAY_HISTORY';
+export const SET_FAVORITE_LIST = 'SET_FAVORITE_LIST';

@@ -29,19 +29,19 @@ export const playlistMixin = {
 export const playerMixin = {
   computed: {
     iconMode() {
-      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
+      return this.playMode === playMode.sequence ? 'icon-sequence' : this.playMode === playMode.loop ? 'icon-loop' : 'icon-random'
     },
     ...mapGetters([
       'sequenceList',
-      'playlist',
+      'playList',
       'currentSong',
-      'mode',
+      'playMode',
       'favoriteList'
     ])
   },
   methods: {
     changeMode() {
-      const mode = (this.mode + 1) % 3
+      const mode = (this.playMode + 1) % 3
       this.setPlayMode(mode)
       let list = null
       if (mode === playMode.random) {
@@ -113,10 +113,10 @@ export const searchMixin = {
       this.$refs.searchBox.setQuery(query)
     },
     saveSearch() {
-      this.saveSearchHistory(this.query)
+      this.setSearchHistory(this.query)
     },
     ...mapActions([
-      'saveSearchHistory',
+      'setSearchHistory',
       'deleteSearchHistory'
     ])
   }

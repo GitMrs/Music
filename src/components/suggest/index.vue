@@ -17,14 +17,11 @@
   </Scroll>
 </template>
 <script>
-import {searchKey} from '../../api/search';
-import {filterSinger} from '../../common/js/song';
 import Scroll from '../../base/scroll';
 import Loading from '../../base/loading';
 import NoResult from '../../base/no-result';
 import axios from 'axios';
 import {mapActions} from 'vuex';
-const TYPE_SINGER = 'singer';
 const NUM = 30;
 export default {
   props:{
@@ -37,7 +34,7 @@ export default {
     return {
       page:1,
       pullup:true,
-      basMore:true,
+      basMore:false,
       beforeScroll:true,
       result:[]
     }

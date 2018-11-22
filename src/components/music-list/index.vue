@@ -19,7 +19,6 @@
 <script>
 import Scroll from "../../base/scroll";
 import SongList from "../../base/song-list";
-import RankList from '../../base/rank-list';
 import {prefixStyle} from '../../common/js/dom';
 import { mapActions } from "vuex";
 import {playlistMixin} from "../../common/js/mixin"
@@ -80,7 +79,6 @@ export default {
       })
     },
     selectSong(item) {
-      console.log(item)
       this.selectPlay({
         list: this.songs,
         index: item.index
@@ -115,8 +113,7 @@ export default {
   },
   components: {
     Scroll,
-    SongList,
-    RankList
+    SongList
   },
   mounted() {
     this.imageHeight = this.$refs.bgWrap.clientHeight;
@@ -183,6 +180,7 @@ export default {
   .music-wrap {
     position: fixed;
     bottom: 0;
+    width: 100%;
     // overflow hidden
   }
 }
