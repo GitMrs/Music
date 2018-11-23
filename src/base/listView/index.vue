@@ -160,7 +160,6 @@ export default {
   overflow: hidden;
   position: relative;
   padding: 10px;
-
   ul {
 
     li {
@@ -199,7 +198,7 @@ export default {
     right: 0;
     top: 50%;
     transform: translate3d(0, -55%, 0);
-    z-index: 0;
+    z-index: 2;
 
     .shortcut-wrap {
       width: 10%;
@@ -212,7 +211,7 @@ export default {
         margin-top: 0;
         width: 28px;
         background: rgba(0, 0, 0, 0.1);
-        height: 24px;
+        height: 20px;
         color $color-text-ll
       }
       .current{
