@@ -72,5 +72,6 @@ export default {
   width: 100%;
   position: fixed;
   top: 0;
-  background: $color-background;
+  z-index 3
+  background: $color-background
 </style>

@@ -54,7 +54,7 @@
           <div class="progress-bar-wrapper">
             <progress-bar :precent="precent"  @percenChange="percenChange" />
           </div>
-          <span class="time time-r" v-html="_format(this.duration)"></span>
+          <span class="time time-r" v-html="_format(this.duration ? this.duration : currentSong.duration )"></span>
         </div>
         <div class="operators">
           <div class="icon i-left">
@@ -213,6 +213,7 @@ export default {
     },
     ready() {
       this.songReady = true;
+      this.duration = this.$refs.audio.duration
       this.savePlayHistory(this.currentSong)
     },
     error() {
@@ -444,7 +445,6 @@ export default {
       clearTimeout(this.timer);
       this.timer = setTimeout(() => {
         this.$refs.audio.play();
-        this.duration = this.$refs.audio.duration
         this.currentSong.mid ? this._getLyric(this.currentSong.mid) : this._getLyric(this.currentSong.id)
       }, 1000);
     },
